@@ -8,13 +8,13 @@
 #ifndef __NODE_HPP__
 #define __NODE_HPP__
 
-union Node
+class Node
 {
-    Atom atom;
-    Conc conc;
-    Union uni;
-    Star star;
-    Un un;
+	public :
+		virtual Node();
+		virtual ~Node();
+		virtual void print_node() = 0;
+
 };
 
 #endif //__NODE_HPP__

@@ -8,10 +8,16 @@
 #ifndef __CONC_HPP__
 #define __CONC_HPP__
 
-class Conc
+class Conc : Node
 {
-	Tree* left;
-	Tree* right;
+	public :
+		Conc(Tree* left, Tree* right);
+		~Conc();
+		void print_node();
+	private : 
+		Tree* left;
+		Tree* right;
+
 };
 
 #endif //__CONC_HPP__

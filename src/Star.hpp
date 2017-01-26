@@ -8,9 +8,14 @@
 #ifndef __STAR_HPP__
 #define __STAR_HPP__
 
-class Star
+class Star : Node
 {
-	Tree* elt;
+	public :
+		Star(Tree* elt);
+		~Star();
+		void print_node();
+	private :
+		Tree* elt;
 };
 
 #endif //__STAR_HPP__

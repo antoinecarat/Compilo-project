@@ -8,9 +8,14 @@
 #ifndef __UN_HPP__
 #define __UN_HPP__
 
-class Un
+class Un : Node
 {
-	Tree* elt;
+	public :
+		Un(Tree* elt);
+		~Un();
+		void print_node();
+	private :
+		Tree* elt;
 };
 
 #endif //__UN_HPP__

@@ -10,11 +10,17 @@
 
 #include <string>
 
-class Atom
+class Atom : Node
 {
-	string code;
-    int action;
-    bool terminal;
+    public :
+    	Atom(string code, int action, bool terminal);
+    	~Atom();
+		void print_node();
+
+	private:
+		string code;
+    	int action;
+    	bool terminal;
 };
 
 #endif //__ATOM_HPP__

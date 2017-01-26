@@ -8,10 +8,15 @@
 #ifndef __UNION_HPP__
 #define __UNION_HPP__
 
-class Union
+class Union : Node
 {
-	Tree* left;
-	Tree* right;
+	public :
+		Union(Tree* left, Tree* right);
+		~Union();
+		void print_node();
+	private :
+		Tree* left;
+		Tree* right;
 };
 
 #endif //__UNION_HPP__
