@@ -5,8 +5,8 @@ SRCDIR := src
 BUILDDIR := build
 TARGET := bin/compilo
  
-HEADERS := $(shell find src/ -name *.hpp)
-SOURCES := $(shell find src/ -name *.cpp)
+HEADERS := $(shell find src -name *.hpp)
+SOURCES := $(shell find src -name *.cpp)
 OBJECTS := $(patsubst $(SRCDIR)/%, $(BUILDDIR)/%, $(SOURCES:.cpp=.o))
 
 all : $(TARGET)
@@ -20,10 +20,10 @@ clean:
 
 $(TARGET) : $(OBJECTS)
 	@mkdir -p $(dir $@)
-	$(CC) $^ -o $(TARGET)
+	$(CC) $(CFLAGS) $^ -o $(TARGET)
 
 $(OBJECTS): $(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CC) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean

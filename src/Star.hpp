@@ -8,12 +8,20 @@
 #ifndef __STAR_HPP__
 #define __STAR_HPP__
 
-class Star : Node
+#include <iostream>
+
+#include "Node.hpp"
+#include "Tree.hpp"
+using namespace std;
+
+class Star : public Node
 {
 	public :
 		Star(Tree* elt);
 		~Star();
-		void print_node();
+		Tree* getElt();
+		string toString();
+
 	private :
 		Tree* elt;
 };

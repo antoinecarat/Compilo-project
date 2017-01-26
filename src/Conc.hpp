@@ -8,12 +8,21 @@
 #ifndef __CONC_HPP__
 #define __CONC_HPP__
 
-class Conc : Node
+#include <iostream>
+
+#include "Node.hpp"
+#include "Tree.hpp"
+using namespace std;
+
+class Conc : public Node
 {
 	public :
 		Conc(Tree* left, Tree* right);
 		~Conc();
-		void print_node();
+		Tree* getLeft();
+		Tree* getRight();
+		string toString();
+
 	private : 
 		Tree* left;
 		Tree* right;

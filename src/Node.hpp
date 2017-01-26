@@ -8,13 +8,16 @@
 #ifndef __NODE_HPP__
 #define __NODE_HPP__
 
+#include <iostream>
+
+using namespace std;
+
 class Node
 {
 	public :
-		virtual Node();
+		Node();
 		virtual ~Node();
-		virtual void print_node() = 0;
-
+		virtual string toString() = 0;
 };
 
 #endif //__NODE_HPP__

@@ -8,12 +8,21 @@
 #ifndef __UNION_HPP__
 #define __UNION_HPP__
 
-class Union : Node
+#include <iostream>
+
+#include "Node.hpp"
+#include "Tree.hpp"
+using namespace std;
+
+class Union : public Node
 {
 	public :
 		Union(Tree* left, Tree* right);
 		~Union();
-		void print_node();
+		Tree* getLeft();
+		Tree* getRight();
+		string toString();
+
 	private :
 		Tree* left;
 		Tree* right;

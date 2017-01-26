@@ -8,12 +8,21 @@
 #ifndef __UN_HPP__
 #define __UN_HPP__
 
-class Un : Node
+#include <iostream>
+
+#include "Node.hpp"
+#include "Tree.hpp"
+using namespace std;
+
+class Un : public Node
 {
 	public :
 		Un(Tree* elt);
 		~Un();
-		void print_node();
+		Tree* getElt();
+		string toString();
+
+
 	private :
 		Tree* elt;
 };

@@ -8,12 +8,20 @@
 #ifndef __TREE_HPP__
 #define __TREE_HPP__
 
+#include <iostream>
+
+#include "Node.hpp"
+using namespace std;
+
 class Tree
 {
     public:
         Tree();
         ~Tree();
+        Node* getRoot();
+        void setRoot(Node* root);
         void print_tree();
+		string toString();
 
     private:
         Node *root;

@@ -9,13 +9,18 @@
 #define __ATOM_HPP__
 
 #include <string>
+#include "Node.hpp"
+using namespace std;
 
-class Atom : Node
+class Atom : public Node
 {
     public :
-    	Atom(string code, int action, bool terminal);
+    	Atom(std::string code, int action, bool terminal);
     	~Atom();
-		void print_node();
+		string getCode();
+		int getAction();
+		bool getTerminal();
+        string toString();
 
 	private:
 		string code;
