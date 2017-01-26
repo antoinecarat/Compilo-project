@@ -16,6 +16,6 @@ class Tree
         void print_tree();
 
     private:
-        node *root;
+        Node *root;
 };
 #endif //__TREE_HPP__

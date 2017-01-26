@@ -8,21 +8,13 @@
 #ifndef __NODE_HPP__
 #define __NODE_HPP__
 
-#include <Tree.hpp>
-#include <vector>
-#include <string>
-
-class Node
+union Node
 {
-    public:
-        Node(string name);
-        ~Node();
-        void add_son(Tree *t);
-        void print_node();
-
-    private:
-        string name;
-        vector<Tree*> sons;
+    Atom atom;
+    Conc conc;
+    Union uni;
+    Star star;
+    Un un;
 };
 
 #endif //__NODE_HPP__
