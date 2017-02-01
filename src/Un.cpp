@@ -12,7 +12,13 @@ Tree* Un::getElt(){
 	return this->elt;
 }
 
-string Un::toString()
+string Un::toString(int depth)
 {
-    return "---> Un \n ---" + this->elt->toString() + "\n";
+	string branch = "---";
+
+	for(int i=0; i<depth; i++) {
+		branch += "---";
+	}
+
+    return "---> Un \n" + branch + this->elt->toString(depth +1) + "\n";
 }

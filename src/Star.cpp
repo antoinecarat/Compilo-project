@@ -12,7 +12,13 @@ Tree* Star::getElt(){
 	return this->elt;
 }
 
-string Star::toString()
+string Star::toString(int depth)
 {
-    return "---> Star \n ---" + this->elt->toString() + "\n";
+	string branch = "---";
+
+	for(int i=0; i<depth; i++) {
+		branch += "---";
+	}
+
+    return "---> Star \n" + branch + this->elt->toString(depth + 1) + "\n";
 }

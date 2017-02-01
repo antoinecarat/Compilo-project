@@ -20,7 +20,7 @@ class Atom : public Node
 		string getCode();
 		int getAction();
 		bool getTerminal();
-        string toString();
+        string toString(int depth);
 
 	private:
 		string code;

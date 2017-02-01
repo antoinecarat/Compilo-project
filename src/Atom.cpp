@@ -21,8 +21,8 @@ bool Atom::getTerminal(){
 	return this->terminal;
 }
 
-string Atom::toString(){
+string Atom::toString(int depth){
 	string act = to_string(this->action);
 	string term = this->terminal ? "TERMINAL" : "NON-TERMINAL";
-	return "---> Atom : " + this->code + " ; " + act + " ; " + term + "\n";
+	return "---> Atom : " + this->code + " ; " + act + " ; " + term;
 }

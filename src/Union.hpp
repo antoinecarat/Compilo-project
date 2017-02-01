@@ -21,7 +21,7 @@ class Union : public Node
 		~Union();
 		Tree* getLeft();
 		Tree* getRight();
-		string toString();
+		string toString(int depth);
 
 	private :
 		Tree* left;

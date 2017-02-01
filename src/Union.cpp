@@ -17,7 +17,14 @@ Tree* Union::getRight(){
 	return this->right;
 }
 
-string Union::toString()
+string Union::toString(int depth)
 {
-    return "---> Union \n ---" + this->left->toString() + "\n ---" + this->right->toString() + "\n";
+	string branchLeft = "---";
+	string branchRight = "---"; 	
+
+	for(int i=0; i<depth; i++) {
+		branchLeft += "---";
+		branchRight += "---";
+	}
+    return "---> Union \n" + branchLeft + this->left->toString(depth + 1) + "\n" + branchRight + this->right->toString(depth + 1) + "\n";
 }

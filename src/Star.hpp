@@ -20,7 +20,7 @@ class Star : public Node
 		Star(Tree* elt);
 		~Star();
 		Tree* getElt();
-		string toString();
+		string toString(int depth);
 
 	private :
 		Tree* elt;

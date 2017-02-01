@@ -16,12 +16,12 @@ using namespace std;
 class Tree
 {
     public:
-        Tree();
+        Tree(Node* root);
         ~Tree();
         Node* getRoot();
         void setRoot(Node* root);
         void print_tree();
-		string toString();
+		string toString(int depth);
 
     private:
         Node *root;

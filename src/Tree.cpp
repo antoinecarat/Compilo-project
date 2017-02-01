@@ -1,8 +1,8 @@
 #include "Tree.hpp"
 
-Tree::Tree()
+Tree::Tree(Node* root)
 {
-
+	this->root = root;
 }
 
 Tree::~Tree()
@@ -20,7 +20,7 @@ void Tree::setRoot(Node* root)
 	this->root = root;
 }
 
-string Tree::toString()
+string Tree::toString(int depth)
 {
-    return this->root->toString();
+    return this->root->toString(depth);
 }

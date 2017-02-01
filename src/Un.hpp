@@ -20,7 +20,7 @@ class Un : public Node
 		Un(Tree* elt);
 		~Un();
 		Tree* getElt();
-		string toString();
+		string toString(int depth);
 
 
 	private :

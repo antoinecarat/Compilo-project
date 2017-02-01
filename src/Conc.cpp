@@ -17,7 +17,15 @@ Tree* Conc::getRight(){
 	return this->right;
 }
 
-string Conc::toString()
+string Conc::toString(int depth)
 {
-    return "---> Conc \n ---" + this->left->toString() + "\n ---" + this->right->toString();
+	string branchLeft = "---";
+	string branchRight = "---"; 	
+
+	for(int i=0; i<depth; i++) {
+		branchLeft += "---";
+		branchRight += "---";
+	}
+
+    return "---> Conc \n" + branchLeft + this->left->toString(depth + 1) + "\n" + branchRight + this->right->toString(depth + 1);
 }

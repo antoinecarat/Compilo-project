@@ -17,7 +17,7 @@ class Node
 	public :
 		Node();
 		virtual ~Node();
-		virtual string toString() = 0;
+		virtual string toString(int depth) = 0;
 };
 
 #endif //__NODE_HPP__
