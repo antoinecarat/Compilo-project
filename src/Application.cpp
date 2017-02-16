@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 Tree* genConc(Tree* left, Tree* right)
 {
   return new Tree(new Conc(left, right));
@@ -109,7 +111,20 @@ vector<string> extractString(string unit){
 }
 
 bool isSymbol(string unit){
-  switch(unit) {
+  vector<string> symbolsTable;
+  symbolsTable.push_back(";");
+
+  for (int i = 0; i < symbolsTable.size(); ++i)
+  {
+    if (symbolsTable.at(i) == unit)
+    {
+      return true;
+    }
+  }
+
+  return false;
+
+  /*switch(unit) {
     case ";" :
       return true;
     case "+" :
@@ -156,43 +171,51 @@ bool isSymbol(string unit){
   	  return true;
     default :
       return false;
-  }
+  }*/
 }
 
-bool isNum(string unit){
+/*bool isNum(string unit){
   regex e ("^-?\\d+");
   return (regex_match (unit,e));
-}
+}*/
 
 void scanFile(string filename) {
 
-  ifstream fichier(filename, ios::in);
+  ifstream file(filename, ios::in);
   vector<string> symbols;
-  vector<double> numUnits;
-  vector<string> stringUnits;
+  vector<string> lexicalUnits;
 
-  if(fichier){
+  if(file){
     string unit;
 
-    fichier >> unit;  /*on lit jusqu'à l'espace et on stocke ce qui est lu dans la variable indiquée */
-    if (isSymbol(unit)){
-      symbols.push_back(unit);
-    } else if (isNum(unit)){
-      numUnits.push_back(strtod(unit));
-    } else {
-      vector<string> syms = extractSym(unit);
-      symbols.insert(symbols.end(), syms.begin(), syms.end());
-      vector<double> nums = extractNum(unit);
-      symbols.insert(numUnits.end(), nums.begin(), nums.end());
-      vector<string> strings = extractString(unit);
-      stringUnits.insert(stringUnits.end(), strings.begin(), strings.end());
+    while (file >> unit){
+      if (isSymbol(unit)){
+        symbols.push_back(unit);
+      }
     }
+    
+    //   numUnits.push_back(strtod(unit));
+    // } else {
+    //   vector<string> syms = extractSym(unit);
+    //   symbols.insert(symbols.end(), syms.begin(), syms.end());
+    //   vector<double> nums = extractNum(unit);
+    //   symbols.insert(numUnits.end(), nums.begin(), nums.end());
+    //   vector<string> strings = extractString(unit);
+    //   stringUnits.insert(stringUnits.end(), strings.begin(), strings.end());
+    // }
 
-    fichier.close();
+    file.close();
+    for (int i = 0; i < symbols.size(); ++i)
+    {
+      cout << symbols.at(i);
+    }
   }
   else {
     cerr << "Impossible d'ouvrir le fichier !" << endl;
   }
+
+
+
 }
 
 int main(void) {
@@ -206,7 +229,9 @@ int main(void) {
 
   cout << t->toString(0) << endl;*/
 
-  printForest();
+  //printForest();
+
+  scanFile("file.txt");
 
   return 0;
 }
