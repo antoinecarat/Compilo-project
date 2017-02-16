@@ -5,6 +5,7 @@
 #include "Union.hpp"
 #include "Star.hpp"
 #include "Un.hpp"
+#include "Lexical_unit.hpp"
 
 #include <iostream>
 #include <cstdlib>
@@ -92,104 +93,70 @@ void print_forest()
   }
 }
 
-bool isSymbol(string unit){
+bool is_symbol(string unit)
+{
   vector<string> symbolsTable;
+  symbolsTable.push_back("->");
+  symbolsTable.push_back(".");
+  symbolsTable.push_back("+");
+  symbolsTable.push_back("-");
   symbolsTable.push_back(";");
+
 
   for (int i = 0; i < symbolsTable.size(); ++i)
   {
-    if (symbolsTable.at(i) == unit)
+    if (unit.compare(symbolsTable.at(i)) == 0)
     {
+      cout << unit << " - SYMBOL" << endl;
       return true;
     }
   }
-
-  return false;
-
-  /*switch(unit) {
-    case ";" :
-      return true;
-    case "+" :
-      return true;
-    case "-" :
-      return true;
-    case "*" :
-      return true;
-    case "?" :
-      return true;
-    case ":" :
-      return true;
-    case "=" :
-      return true;
-    case "(" :
-      return true;
-    case ")" :
-      return true;
-    case "[" :
-      return true;
-    case "]" :
-      return true;
-    case "{" :
-      return true;
-    case "}" :
-      return true;
-    case "&" :
-      return true;
-    case "|" :
-      return true;
-    case "==" :
-      return true;
-    case "&&" :
-      return true;
-    case "||" :
-      return true;
-    case "<<" :
-      return true;
-    case ">>" :
-      return true;
-    case "<=" :
-      return true;
-    case ">=" : 
-  	  return true;
-    default :
-      return false;
-  }*/
-}
-
-/*bool isNum(string unit){
-  regex e ("^-?\\d+");
-  return (regex_match (unit,e));
-}*/
-
-bool is_symbol(string unit)
-{
+  cout << unit << " - NOT SYMBOL" << endl;
   return false;
 }
 
-//ajouter un pointeur sur l'emplacement précédent
-//pour ne pas 
-Lexical_unit* g0_scan(string filename) {
+vector<Lexical_unit*> g0_scan(string filename) {
 
   ifstream file(filename, ios::in);
-  Lexical_unit* lex_unit;
+  vector<Lexical_unit*> lex_units;
 
   if(file){
     string unit;
-    file >> unit;
-
-    //decouper pour prendre le premier
-    //si le premier caractère est un symbole
-    // - si on peut former un double symbole avec le caractère suivant
-    //   - unit = char1+char2; new Lexical_unit(unit, 2);
-    //sinon si le premeir caractère est un " # "
-    // - on prends les caractères suivants tant que se sont des chiffres.
-    // - new Lexical_unit(unit, 3);
-    //sinon si le premeir caractère est un " ' "
-    // - on regarde les caractères suivants jusqu'au prochain " ' ".
-    // - new Lexical_unit(unit, 0);
-    //sinon
-    // - on regarde les caractères suivants jusqu'au prochain symbole/séparateur.
-    // - new Lexical_unit(unit, 1);
+    while(file >> unit)
+    {
+      while (unit.length() > 0)
+      {
+        cout << unit << endl;
+        int cmp=0;
+        char char1, char2;
+        //decouper unit pour prendre le premier
+        string lex_unit = "";
+        lex_unit += unit.at(0);
+        //si le premier caractère est un symbole
+        if (is_symbol(lex_unit))
+        {
+        // - si on peut former un double symbole avec le caractère suivant
+          char2 = unit.at(1);
+          if (is_symbol(lex_unit+char2))
+          {
+            lex_unit += char2;
+          }
+          cout << lex_unit;
+          lex_units.push_back(new Lexical_unit(lex_unit, 2));
+        }
+      //sinon si le premeir caractère est un " # "
+      // - on prends les caractères suivants tant que se sont des chiffres.
+      // - new Lexical_unit(unit, 3);
+      //sinon si le premeir caractère est un " ' "
+      // - on regarde les caractères suivants jusqu'au prochain " ' ".
+      // - new Lexical_unit(unit, 0);
+      //sinon
+      // - on regarde les caractères suivants jusqu'au prochain symbole/séparateur.
+      // - new Lexical_unit(unit, 1);
+      ++cmp;
+      unit = unit.substr(cmp);
+      }
+    }
 
     file.close();
 
@@ -198,12 +165,12 @@ Lexical_unit* g0_scan(string filename) {
     cerr << "Impossible d'ouvrir le fichier !" << endl;
   }
 
-  return lex_unit;
+  return lex_units;
 }
 
 void g0_analyse(string filename)
 {
-  //Appelle le scan, et les actions.
+  //Appelle le scan, et execute les actions.
 }
 
 
@@ -221,7 +188,7 @@ int main(void)
 
   //print_forest();
 
-  g0_analyse("gpl.txt");
+  g0_scan("gpl.txt");
 
   return 0;
 }

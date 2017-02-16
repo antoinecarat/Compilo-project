@@ -9,7 +9,7 @@ Lexical_unit::~Lexical_unit(){
 
 }
 
-string Conc::toString()
+string Lexical_unit::toString()
 {
-    return "unit : " + unit + " ; type : " + type + " .\n";
+    return "unit : " + unit + " ; type : " + " .\n";
 }
