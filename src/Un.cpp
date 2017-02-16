@@ -20,5 +20,5 @@ string Un::toString(int depth)
 		branch += "---";
 	}
 
-    return "---> Un \n" + branch + this->elt->toString(depth +1) + "\n";
+    return "---> Un \n" + branch + this->elt->toString(depth +1);
 }

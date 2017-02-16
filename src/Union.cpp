@@ -26,5 +26,5 @@ string Union::toString(int depth)
 		branchLeft += "---";
 		branchRight += "---";
 	}
-    return "---> Union \n" + branchLeft + this->left->toString(depth + 1) + "\n" + branchRight + this->right->toString(depth + 1) + "\n";
+    return "---> Union \n" + branchLeft + this->left->toString(depth + 1) + "\n" + branchRight + this->right->toString(depth + 1);
 }

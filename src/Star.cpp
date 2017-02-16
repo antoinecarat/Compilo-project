@@ -20,5 +20,5 @@ string Star::toString(int depth)
 		branch += "---";
 	}
 
-    return "---> Star \n" + branch + this->elt->toString(depth + 1) + "\n";
+    return "---> Star \n" + branch + this->elt->toString(depth + 1);
 }
