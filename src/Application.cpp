@@ -99,8 +99,10 @@ bool is_symbol(string unit)
   symbolsTable.push_back("->");
   symbolsTable.push_back(".");
   symbolsTable.push_back("+");
-  symbolsTable.push_back("-");
-  symbolsTable.push_back(";");
+  symbolsTable.push_back("[");
+  symbolsTable.push_back("]");
+  symbolsTable.push_back("(|");
+  symbolsTable.push_back("|)");
 
 
   for (int i = 0; i < symbolsTable.size(); ++i)
@@ -124,26 +126,39 @@ vector<Lexical_unit*> g0_scan(string filename) {
     string unit;
     while(file >> unit)
     {
-      while (unit.length() > 0)
+      int cmp=0;
+      while (unit.length() > 0 && cmp < unit.length())
       {
-        cout << unit << endl;
-        int cmp=0;
+        cmp=0; 
         char char1, char2;
-        //decouper unit pour prendre le premier
+        //TODO: gérer les doubles symboles
         string lex_unit = "";
         lex_unit += unit.at(0);
-        //si le premier caractère est un symbole
+        
         if (is_symbol(lex_unit))
         {
-        // - si on peut former un double symbole avec le caractère suivant
-          char2 = unit.at(1);
-          if (is_symbol(lex_unit+char2))
-          {
-            lex_unit += char2;
-          }
-          cout << lex_unit;
           lex_units.push_back(new Lexical_unit(lex_unit, 2));
+          cout << "add : " << lex_unit << endl;
+        } else if (lex_unit.compare("'") == 0)
+        {
+          string tmp = "";
+          tmp += unit.at(++cmp);
+          while(tmp.compare("'") != 0 && !is_symbol(tmp))
+          {
+            lex_unit += tmp;
+            tmp = "";
+            tmp += unit.at(++cmp);
+          }
+          if (tmp.compare("'") == 0)
+          {
+            lex_unit += tmp;
+          }
+          cout << "add : " << lex_unit << endl;
+          lex_units.push_back(new Lexical_unit(lex_unit, 0));
+        } else {
+
         }
+        ++cmp;
       //sinon si le premeir caractère est un " # "
       // - on prends les caractères suivants tant que se sont des chiffres.
       // - new Lexical_unit(unit, 3);
@@ -153,7 +168,6 @@ vector<Lexical_unit*> g0_scan(string filename) {
       //sinon
       // - on regarde les caractères suivants jusqu'au prochain symbole/séparateur.
       // - new Lexical_unit(unit, 1);
-      ++cmp;
       unit = unit.substr(cmp);
       }
     }
