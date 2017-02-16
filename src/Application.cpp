@@ -14,70 +14,70 @@
 
 using namespace std;
 
-Tree* genConc(Tree* left, Tree* right)
+Tree* gen_conc(Tree* left, Tree* right)
 {
   return new Tree(new Conc(left, right));
 }
 
-Tree* genUnion(Tree* left, Tree* right)
+Tree* gen_union(Tree* left, Tree* right)
 {
   return new Tree(new Union(left, right));
 }
 
-Tree* genStar(Tree* star)
+Tree* gen_star(Tree* star)
 {
   return new Tree(new Star(star));
 }
 
-Tree* genUn(Tree* un)
+Tree* gen_un(Tree* un)
 {
   return new Tree(new Un(un));
 }
 
-Tree* genAtom(std::string code, int action, bool terminal)
+Tree* gen_atom(std::string code, int action, bool terminal)
 {
   return new Tree(new Atom(code, action, terminal));
 }
 
-void printForest()
+void print_forest()
 {
   Tree* forest[5];
-  forest[0] = genConc(genStar(genConc(genConc(genConc(genAtom("N", 0, false),
-                                                     genAtom("F", 0, false)
+  forest[0] = gen_conc(gen_star(gen_conc(gen_conc(gen_conc(gen_atom("N", 0, false),
+                                                     gen_atom("F", 0, false)
                                                      ),
-                                             genAtom("E", 0, false)
+                                             gen_atom("E", 0, false)
                                              ),
-                                     genAtom(",", 1, true)
+                                     gen_atom(",", 1, true)
                                      )),
-                      genAtom(";", 1, true)
+                      gen_atom(";", 1, true)
                       );
-  forest[1] = genAtom("I", 0, false);
-  forest[2] = genConc(genAtom("I", 0, false),
-                     genStar(genConc(genAtom("+", 0, true),
-                                     genAtom("T", 0, false)
+  forest[1] = gen_atom("I", 0, false);
+  forest[2] = gen_conc(gen_atom("I", 0, false),
+                     gen_star(gen_conc(gen_atom("+", 0, true),
+                                     gen_atom("T", 0, false)
                                     ))
                     );
-  forest[3] = genConc(genAtom("F", 0, false),
-                     genStar(genConc(genAtom(".", 1, true),
-                                     genAtom("F", 0, false)
+  forest[3] = gen_conc(gen_atom("F", 0, false),
+                     gen_star(gen_conc(gen_atom(".", 1, true),
+                                     gen_atom("F", 0, false)
                                      ))
                      );
-  forest[4] = genUnion(genAtom("IDNTER", 0, false),
-                      genUnion(genAtom("ELTER", 0, false),
-                               genUnion(genConc(genConc(genAtom("(", 0, true),
-                                                        genAtom("E", 0, false)
+  forest[4] = gen_union(gen_atom("IDNTER", 0, false),
+                      gen_union(gen_atom("ELTER", 0, false),
+                               gen_union(gen_conc(gen_conc(gen_atom("(", 0, true),
+                                                        gen_atom("E", 0, false)
                                                         ),
-                                                genAtom(")", 0, true)
+                                                gen_atom(")", 0, true)
                                                 ),
-                                        genUnion(genConc(genConc(genAtom("[", 0, true),
-                                                                 genAtom("E", 0, false)
+                                        gen_union(gen_conc(gen_conc(gen_atom("[", 0, true),
+                                                                 gen_atom("E", 0, false)
                                                                 ),
-                                                         genAtom("]", 0, true)
+                                                         gen_atom("]", 0, true)
                                                         ),
-                                                 genConc(genConc(genAtom("(\\", 0, true),
-                                                                 genAtom("E", 0, false)
+                                                 gen_conc(gen_conc(gen_atom("(\\", 0, true),
+                                                                 gen_atom("E", 0, false)
                                                                 ),
-                                                         genAtom("\\)", 0, true)
+                                                         gen_atom("\\)", 0, true)
                                                         )
                                                  )
                                         )
@@ -90,24 +90,6 @@ void printForest()
     cout << forest[i]->toString(0) << endl;
     cout << "++++++++++++++++++++++++++++++" << endl; 
   }
-}
-
-vector<string> extractSym(string unit){
-  vector<string> syms;
-
-
-
-  return syms;
-} 
-
-vector<double> extractNum(string unit){
-  vector<double> nums;
-  return nums;
-}
-
-vector<string> extractString(string unit){
-  vector<string> strings;
-  return strings;
 }
 
 bool isSymbol(string unit){
@@ -179,46 +161,54 @@ bool isSymbol(string unit){
   return (regex_match (unit,e));
 }*/
 
-void scanFile(string filename) {
+bool is_symbol(string unit)
+{
+  return false;
+}
+
+//ajouter un pointeur sur l'emplacement précédent
+//pour ne pas 
+Lexical_unit* g0_scan(string filename) {
 
   ifstream file(filename, ios::in);
-  vector<string> symbols;
-  vector<string> lexicalUnits;
+  Lexical_unit* lex_unit;
 
   if(file){
     string unit;
+    file >> unit;
 
-    while (file >> unit){
-      if (isSymbol(unit)){
-        symbols.push_back(unit);
-      }
-    }
-    
-    //   numUnits.push_back(strtod(unit));
-    // } else {
-    //   vector<string> syms = extractSym(unit);
-    //   symbols.insert(symbols.end(), syms.begin(), syms.end());
-    //   vector<double> nums = extractNum(unit);
-    //   symbols.insert(numUnits.end(), nums.begin(), nums.end());
-    //   vector<string> strings = extractString(unit);
-    //   stringUnits.insert(stringUnits.end(), strings.begin(), strings.end());
-    // }
+    //decouper pour prendre le premier
+    //si le premier caractère est un symbole
+    // - si on peut former un double symbole avec le caractère suivant
+    //   - unit = char1+char2; new Lexical_unit(unit, 2);
+    //sinon si le premeir caractère est un " # "
+    // - on prends les caractères suivants tant que se sont des chiffres.
+    // - new Lexical_unit(unit, 3);
+    //sinon si le premeir caractère est un " ' "
+    // - on regarde les caractères suivants jusqu'au prochain " ' ".
+    // - new Lexical_unit(unit, 0);
+    //sinon
+    // - on regarde les caractères suivants jusqu'au prochain symbole/séparateur.
+    // - new Lexical_unit(unit, 1);
 
     file.close();
-    for (int i = 0; i < symbols.size(); ++i)
-    {
-      cout << symbols.at(i);
-    }
+
   }
   else {
     cerr << "Impossible d'ouvrir le fichier !" << endl;
   }
 
-
-
+  return lex_unit;
 }
 
-int main(void) {
+void g0_analyse(string filename)
+{
+  //Appelle le scan, et les actions.
+}
+
+
+int main(void)
+{
 
   /*Tree* t_left = new Tree(new Atom("FLECHE", 0, true));
   Tree* t_star = new Tree(new Atom("N", 0, false));
@@ -229,9 +219,9 @@ int main(void) {
 
   cout << t->toString(0) << endl;*/
 
-  //printForest();
+  //print_forest();
 
-  scanFile("file.txt");
+  g0_analyse("gpl.txt");
 
   return 0;
 }
