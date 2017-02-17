@@ -109,11 +109,11 @@ bool is_symbol(string unit)
   {
     if (unit.compare(symbolsTable.at(i)) == 0)
     {
-      cout << unit << " - SYMBOL" << endl;
+      //cout << unit << " - SYMBOL" << endl;
       return true;
     }
   }
-  cout << unit << " - NOT SYMBOL" << endl;
+  //cout << unit << " - NOT SYMBOL" << endl;
   return false;
 }
 
@@ -127,16 +127,21 @@ vector<Lexical_unit*> g0_scan(string filename) {
     while(file >> unit)
     {
       int cmp=0;
-      while (unit.length() > 0 && cmp < unit.length())
+      while (unit.length() > 1 && cmp < unit.length())
       {
         cmp=0; 
         char char1, char2;
         //TODO: gérer les doubles symboles
+        //TODO: gérer les actions
         string lex_unit = "";
         lex_unit += unit.at(0);
         
         if (is_symbol(lex_unit))
-        {
+        { 
+          if(is_symbol(lex_unit+unit.at(1)))
+          {
+            lex_unit += unit.at(1);
+          }
           lex_units.push_back(new Lexical_unit(lex_unit, 2));
           cout << "add : " << lex_unit << endl;
         } else if (lex_unit.compare("'") == 0)
@@ -154,9 +159,20 @@ vector<Lexical_unit*> g0_scan(string filename) {
             lex_unit += tmp;
           }
           cout << "add : " << lex_unit << endl;
-          lex_units.push_back(new Lexical_unit(lex_unit, 0));
+          lex_units.push_back(new Lexical_unit(lex_unit, 1));
         } else {
-
+          string tmp = "";
+          tmp += unit.at(++cmp);
+          while(!is_symbol(tmp))
+          {
+            lex_unit += tmp;
+            tmp = "";
+            tmp += unit.at(++cmp);
+          }
+          cout << "add : " << lex_unit << endl;
+          cout << "add : " << tmp << endl;
+          lex_units.push_back(new Lexical_unit(lex_unit, 0));
+          lex_units.push_back(new Lexical_unit(tmp, 2));
         }
         ++cmp;
       //sinon si le premeir caractère est un " # "
