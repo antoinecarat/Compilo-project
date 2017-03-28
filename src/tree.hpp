@@ -1,17 +1,29 @@
-class tree
+/**
+ * @file Tree.hpp
+ * @author M.Cherrueau & A.Carat
+ * @since 19/01/2017
+ * @brief Generic tree definition
+ *
+**/
+#ifndef __TREE_HPP__
+#define __TREE_HPP__
+
+#include <iostream>
+
+#include "Node.hpp"
+using namespace std;
+
+class Tree
 {
     public:
-        tree();
-        ~tree();
-
-        void insert(int key);
-        node *search(int key);
-        void destroy_tree();
+        Tree(Node* root);
+        ~Tree();
+        Node* getRoot();
+        void setRoot(Node* root);
+        void print_tree();
+        string toString(int depth);
 
     private:
-        void destroy_tree(node *leaf);
-        void insert(int key, node *leaf);
-        node *search(int key, node *leaf);
-        
-        node *root;
+        Node *root;
 };
+#endif //__TREE_HPP__

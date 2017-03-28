@@ -2,7 +2,7 @@
  * @file Lexical_unit.hpp
  * @author M.Cherrueau & A.Carat
  * @since 16/02/2017
- * @brief Lexical unit definition
+ * @brief Lexical unit definition.
  *
 **/
 #ifndef __LEXICALUNIT_HPP__
@@ -16,9 +16,11 @@ class Lexical_unit
 {
 	private : 
 		string unit;
-		int type;
+		bool term;
+		int action;
 	public :
-		Lexical_unit(string unit, int type);
+		Lexical_unit(string unit, bool term, int action);
+		Lexical_unit(string unit, bool term);
 		~Lexical_unit();
 		string toString();
 };
