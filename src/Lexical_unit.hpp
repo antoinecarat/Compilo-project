@@ -23,8 +23,9 @@ class Lexical_unit
 		Lexical_unit(string unit, string code, bool term, int action);
 		Lexical_unit(string unit, string code, bool term);
 		~Lexical_unit();
-		string toString();
 		string getUnit();
+		int getAction();
+		string toString();
 };
 
 #endif //__LEXICALUNIT_HPP__

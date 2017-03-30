@@ -45,7 +45,7 @@ void gen_forest(Tree* forest[])
 {
   //S
   forest[0] = gen_conc(gen_star(gen_conc(gen_conc(gen_conc(gen_atom("N", 0, false),
-                                                     gen_atom("\'->\'", 0, false)
+                                                     gen_atom("\'->\'", 0, true)
                                                      ),
                                              gen_atom("E", 0, false)
                                              ),
@@ -54,7 +54,7 @@ void gen_forest(Tree* forest[])
                       gen_atom("\';\'", 0, true)
                       );
   //N
-  forest[1] = gen_atom("\'IDNTER\'", 2, false);
+  forest[1] = gen_atom("\'IDNTER\'", 2, true);
   //E
   forest[2] = gen_conc(gen_atom("T", 0, false),
                      gen_star(gen_conc(gen_atom("\'+\'", 0, true),
@@ -68,8 +68,8 @@ void gen_forest(Tree* forest[])
                                      ))
                      );
   //F
-  forest[4] = gen_union(gen_atom("\'IDNTER\'", 5, false),
-                      gen_union(gen_atom("\'ELTER\'", 5, false),
+  forest[4] = gen_union(gen_atom("\'IDNTER\'", 5, true),
+                      gen_union(gen_atom("\'ELTER\'", 5, true),
                                gen_union(gen_conc(gen_conc(gen_atom("\'(\'", 0, true),
                                                         gen_atom("E", 0, false)
                                                         ),
@@ -129,7 +129,7 @@ Lexical_unit* g0_scan(string filename, int offset)
   string lex_unit;
   int cmp;
 
-  if(file >> unit)
+  if(file >> unit)//TODO: Replace this by getline
   {
     cout << "\n-->> Read : " << unit << endl;
     cmp = 0;
@@ -155,7 +155,24 @@ Lexical_unit* g0_scan(string filename, int offset)
           tmp += unit.at(++cmp);
         }
         lex_unit += tmp; // add '
-        return new Lexical_unit(lex_unit, "ELTER", true);
+        //Test if there is an action
+        string action;
+        action="";
+        action += unit.at(++cmp);
+        int action_num = 0;
+
+        if (action.compare("#") == 0)
+        {
+          action="";
+          action += unit.at(++cmp);
+          while(is_numeric(action))
+          {
+            cout << "Action:" << action << endl;
+            action += unit.at(++cmp);
+          }
+          action_num = atoi(action.c_str());
+        }
+        return new Lexical_unit(lex_unit, "ELTER", true, action_num);
       } else
       {
         string double_unit = lex_unit;
@@ -182,7 +199,7 @@ Lexical_unit* g0_scan(string filename, int offset)
           {
             tmp2 += unit.at(++cmp);
           }
-          while(tmp.compare("'") != 0 && !is_symbol(tmp) && cmp < unit.size() - 1)
+          while(tmp.compare("#") != 0 && tmp.compare("'") != 0 && !is_symbol(tmp) && cmp < unit.size() - 1)
           {
             if(is_symbol(tmp2))
             {
@@ -198,7 +215,24 @@ Lexical_unit* g0_scan(string filename, int offset)
               tmp2 += unit.at(++cmp);
             }
           }
-          return new Lexical_unit(lex_unit, "IDNTER", false);
+          //Test if there is an action
+          string action;
+          action="";
+          action += unit.at(++cmp);
+          int action_num = 0;
+
+          if (action.compare("#") == 0)
+          {
+            action="";
+            action += unit.at(++cmp);
+            while(is_numeric(action))
+            {
+              cout << "Action:" << action << endl;
+              action += unit.at(++cmp);
+            }
+            action_num = atoi(action.c_str());
+          }
+          return new Lexical_unit(lex_unit, "IDNTER", false, action_num);
         }
       }
     }
@@ -217,6 +251,11 @@ bool g0_analyse(string filename, Tree* forest[])
   while ( scanned != NULL)
   {
     offset += scanned->getUnit().size();
+    if (scanned->getAction() != 0)
+    {
+      offset++;
+      offset += scanned->getAction()/10 + 1;
+    }
     cout << "+ " << scanned->toString() << endl;
     //analyse
     scanned = g0_scan(filename, offset);

@@ -23,12 +23,17 @@ string Lexical_unit::getUnit()
 	return this->unit;
 }
 
+int Lexical_unit::getAction()
+{
+	return this->action;
+}
+
 string Lexical_unit::toString()
 {
     string res = "unit : ";
     res += unit + " ; ";
     res += code + " ; ";
     res += term ? "TERM ; " : "NTERM ; ";
-    res += action;
+    res += to_string(action);
     return res;
 }
