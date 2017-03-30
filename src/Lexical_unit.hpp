@@ -16,13 +16,15 @@ class Lexical_unit
 {
 	private : 
 		string unit;
+		string code;
 		bool term;
 		int action;
 	public :
-		Lexical_unit(string unit, bool term, int action);
-		Lexical_unit(string unit, bool term);
+		Lexical_unit(string unit, string code, bool term, int action);
+		Lexical_unit(string unit, string code, bool term);
 		~Lexical_unit();
 		string toString();
+		string getUnit();
 };
 
 #endif //__LEXICALUNIT_HPP__

@@ -43,42 +43,47 @@ Tree* gen_atom(std::string code, int action, bool terminal)
 
 void gen_forest(Tree* forest[])
 {
+  //S
   forest[0] = gen_conc(gen_star(gen_conc(gen_conc(gen_conc(gen_atom("N", 0, false),
-                                                     gen_atom("F", 0, false)
+                                                     gen_atom("\'->\'", 0, false)
                                                      ),
                                              gen_atom("E", 0, false)
                                              ),
-                                     gen_atom(",", 1, true)
+                                     gen_atom("\',\'", 1, true)
                                      )),
-                      gen_atom(";", 1, true)
+                      gen_atom("\';\'", 0, true)
                       );
-  forest[1] = gen_atom("I", 0, false);
-  forest[2] = gen_conc(gen_atom("I", 0, false),
-                     gen_star(gen_conc(gen_atom("+", 0, true),
-                                     gen_atom("T", 0, false)
+  //N
+  forest[1] = gen_atom("\'IDNTER\'", 2, false);
+  //E
+  forest[2] = gen_conc(gen_atom("T", 0, false),
+                     gen_star(gen_conc(gen_atom("\'+\'", 0, true),
+                                     gen_atom("T", 3, false)
                                     ))
                     );
+  //T
   forest[3] = gen_conc(gen_atom("F", 0, false),
-                     gen_star(gen_conc(gen_atom(".", 1, true),
-                                     gen_atom("F", 0, false)
+                     gen_star(gen_conc(gen_atom("\'.\'", 0, true),
+                                     gen_atom("F", 4, false)
                                      ))
                      );
-  forest[4] = gen_union(gen_atom("IDNTER", 0, false),
-                      gen_union(gen_atom("ELTER", 0, false),
-                               gen_union(gen_conc(gen_conc(gen_atom("(", 0, true),
+  //F
+  forest[4] = gen_union(gen_atom("\'IDNTER\'", 5, false),
+                      gen_union(gen_atom("\'ELTER\'", 5, false),
+                               gen_union(gen_conc(gen_conc(gen_atom("\'(\'", 0, true),
                                                         gen_atom("E", 0, false)
                                                         ),
-                                                gen_atom(")", 0, true)
+                                                gen_atom("\')\'", 0, true)
                                                 ),
-                                        gen_union(gen_conc(gen_conc(gen_atom("[", 0, true),
+                                        gen_union(gen_conc(gen_conc(gen_atom("\'[\'", 0, true),
                                                                  gen_atom("E", 0, false)
                                                                 ),
-                                                         gen_atom("]", 0, true)
+                                                         gen_atom("\']\'", 6, true)
                                                         ),
-                                                 gen_conc(gen_conc(gen_atom("(\\", 0, true),
+                                                 gen_conc(gen_conc(gen_atom("\'(|\'", 0, true),
                                                                  gen_atom("E", 0, false)
                                                                 ),
-                                                         gen_atom("\\)", 0, true)
+                                                         gen_atom("\'|)\'", 7, true)
                                                         )
                                                  )
                                         )
@@ -89,7 +94,7 @@ void gen_forest(Tree* forest[])
 bool is_symbol(string unit)
 {
   vector<string> symbolsTable;
-  symbolsTable.push_back("-");
+  symbolsTable.push_back("->");
   symbolsTable.push_back(".");
   symbolsTable.push_back("+");
   symbolsTable.push_back("[");
@@ -113,81 +118,112 @@ bool is_numeric(string unit)
   return (unit.find_first_not_of( "0123456789" ) == string::npos);
 }
 
-vector<Lexical_unit*> g0_scan(string filename)
+//Donne l'unité lexicale suivante
+Lexical_unit* g0_scan(string filename, int offset)
 {
 
   ifstream file(filename, ios::in);
-  vector<Lexical_unit*> lex_units;
+  file.seekg(offset);
 
-  if(file)
+  string unit;
+  string lex_unit;
+  int cmp;
+
+  if(file >> unit)
   {
-    string unit;
-    string lex_unit;
-    int cmp;
-    while(file >> unit)
+    cout << "\n-->> Read : " << unit << endl;
+    cmp = 0;
+    lex_unit = "";
+    lex_unit += unit.at(cmp);
+    if (unit.size() == 1)
     {
-      while (unit.length() > 0)
+      if(is_symbol(lex_unit))
       {
-        cout << "--------\n" << "Unit : " << unit << endl;
-        cmp = 0;
-        lex_unit = "";
-        lex_unit += unit.at(cmp);
-        cout << "Lex_unit : " << lex_unit << endl;
-        if (unit.size() == 1)
+        return new Lexical_unit(lex_unit, lex_unit, true);
+      }
+      return new Lexical_unit(lex_unit, "IDNTER", false);
+    } else
+    {
+      if (lex_unit.compare("'") == 0)
+      {
+        string tmp = "";
+        tmp += unit.at(++cmp);
+        while(tmp.compare("'") != 0 && cmp < unit.size() - 1)
         {
-          cout << "SIZE 1" << endl;
-          lex_units.push_back(new Lexical_unit(lex_unit, false));
-        } else
+          lex_unit += tmp;
+          tmp = "";
+          tmp += unit.at(++cmp);
+        }
+        lex_unit += tmp; // add '
+        return new Lexical_unit(lex_unit, "ELTER", true);
+      } else
+      {
+        string double_unit = lex_unit;
+        if(unit.size() - cmp > 1)
         {
-          if (lex_unit.compare("'") == 0)
+          double_unit += unit.at(++cmp);
+          if (is_symbol(double_unit))
           {
-            string tmp = "";
-            tmp += unit.at(++cmp);
-            while(tmp.compare("'") != 0 && cmp < unit.size() - 1)
-            {
-              lex_unit += tmp;
-              tmp = "";
-              tmp += unit.at(++cmp);
-            }
-            lex_unit += tmp; // add '
-            lex_units.push_back(new Lexical_unit(lex_unit, true));
-          } else if (is_symbol(lex_unit))
-          {
-            lex_units.push_back(new Lexical_unit(lex_unit, false));
+            return new Lexical_unit(double_unit, double_unit, true);
           } else
           {
-            string tmp = "";
-            tmp += unit.at(++cmp);
-            while(tmp.compare("'") != 0 && !is_symbol(tmp) && cmp < unit.size() - 1)
-            {
-              lex_unit += tmp;
-              tmp = "";
-              tmp += unit.at(++cmp);
-            }
-            lex_units.push_back(new Lexical_unit(lex_unit, false));
+            --cmp;
           }
-          cout << "Add : " << lex_unit << endl;
-          unit = unit.substr(++cmp);
+        }
+        if (is_symbol(lex_unit))
+        {
+          return new Lexical_unit(lex_unit, lex_unit, true);
+        } else
+        {
+          string tmp = "";
+          tmp += unit.at(++cmp);
+          string tmp2 = tmp;
+          if(unit.size() - cmp > 1)
+          {
+            tmp2 += unit.at(++cmp);
+          }
+          while(tmp.compare("'") != 0 && !is_symbol(tmp) && cmp < unit.size() - 1)
+          {
+            if(is_symbol(tmp2))
+            {
+              --cmp;
+              break;
+            }
+            lex_unit += tmp;
+            tmp = "";
+            tmp += unit.at(++cmp);
+            tmp2 = tmp;
+            if(unit.size() - cmp > 1)
+            {
+              tmp2 += unit.at(++cmp);
+            }
+          }
+          return new Lexical_unit(lex_unit, "IDNTER", false);
         }
       }
     }
-
-    file.close();
-
-  }
-  else {
-    cerr << "Impossible d'ouvrir le fichier !" << endl;
   }
 
-  return lex_units;
+  file.close();
+
+  return NULL;
 }
 
 //Appelle le scan, et execute les actions pour construire les arbres de la GPL.
-void g0_analyse(string filename, Tree* forest[])
+bool g0_analyse(string filename, Tree* forest[])
 {
-  
-}
+  int offset = 0;
+  Lexical_unit* scanned = g0_scan(filename, offset);
+  while ( scanned != NULL)
+  {
+    offset += scanned->getUnit().size();
+    cout << "+ " << scanned->toString() << endl;
+    //analyse
+    scanned = g0_scan(filename, offset);
+  }
 
+  return false;
+}
 
 int main(void)
 {  
@@ -202,16 +238,19 @@ int main(void)
      cout << "\n\n" << endl; 
   }
 
-
-
-  cout << ">> Règles de G0 :" << endl;
-  g0_analyse("gpl.txt", A);
-  for (int i = 5; i < 10; ++i)
+  if (g0_analyse("gpl.txt", A))
   {
-     cout << "A[" << i << "] :" << endl;
-     cout << A[i]->toString(0) << endl;
-     cout << "\n\n" << endl; 
+    cout << ">> Règles de G0 :" << endl;
+    for (int i = 5; i < 50; ++i)
+    {
+      cout << "A[" << i << "] :" << endl;
+      cout << A[i]->toString(0) << endl;
+      cout << "\n\n" << endl; 
+    }
+  } else {
+    cout << "Le contenu du fichier n'est pas une grammaire." << endl;
   }
+  
 
 
   return 0;
