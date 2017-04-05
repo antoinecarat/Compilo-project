@@ -23,6 +23,16 @@ string Lexical_unit::getUnit()
 	return this->unit;
 }
 
+string Lexical_unit::getCode()
+{
+	return this->code;
+}
+
+bool Lexical_unit::getTerminal()
+{
+	return this->term;
+}
+
 int Lexical_unit::getAction()
 {
 	return this->action;

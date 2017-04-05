@@ -17,6 +17,10 @@ Tree* Star::getElt(){
 
 bool Star::getTerminal(){return NULL;}
 
+string Star::getCode(){return NULL;}
+
+int Star::getAction(){return NULL;}
+
 string Star::toString(int depth)
 {
 	string branch = "---";

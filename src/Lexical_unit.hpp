@@ -24,6 +24,8 @@ class Lexical_unit
 		Lexical_unit(string unit, string code, bool term);
 		~Lexical_unit();
 		string getUnit();
+		string getCode();
+		bool getTerminal();
 		int getAction();
 		string toString();
 };

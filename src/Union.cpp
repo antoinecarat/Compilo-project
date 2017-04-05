@@ -21,6 +21,10 @@ Tree* Union::getElt(){return NULL;}
 
 bool Union::getTerminal(){return NULL;}
 
+string Union::getCode(){return NULL;}
+
+int Union::getAction(){return NULL;}
+
 string Union::toString(int depth)
 {
 	string branchLeft = "---";

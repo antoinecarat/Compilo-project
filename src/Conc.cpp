@@ -25,6 +25,10 @@ Tree* Conc::getElt(){return NULL;}
 
 bool Conc::getTerminal(){return NULL;}
 
+string Conc::getCode(){return NULL;}
+
+int Conc::getAction(){return NULL;}
+
 string Conc::toString(int depth)
 {
 	string branchLeft = "---";

@@ -23,6 +23,8 @@ class Un : public Node
         Tree* getRight();
 		Tree* getElt();
 		bool getTerminal();
+		string getCode();
+		int getAction();
 		string toString(int depth);
 		string getType();
 

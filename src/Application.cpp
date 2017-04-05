@@ -16,6 +16,10 @@
 
 using namespace std;
 
+
+Tree* A[50];
+
+
 Tree* gen_conc(Tree* left, Tree* right)
 {
   return new Tree(new Conc(left, right));
@@ -43,7 +47,7 @@ Tree* gen_atom(std::string code, int action, bool terminal)
 
 void gen_forest(Tree* forest[])
 {
-  //S
+  //S0
   forest[0] = gen_conc(gen_star(gen_conc(gen_conc(gen_conc(gen_atom("N", 0, false),
                                                      gen_atom("\'->\'", 0, true)
                                                      ),
@@ -53,21 +57,21 @@ void gen_forest(Tree* forest[])
                                      )),
                       gen_atom("\';\'", 0, true)
                       );
-  //N
+  //N0
   forest[1] = gen_atom("\'IDNTER\'", 2, true);
-  //E
+  //E0
   forest[2] = gen_conc(gen_atom("T", 0, false),
                      gen_star(gen_conc(gen_atom("\'+\'", 0, true),
                                      gen_atom("T", 3, false)
                                     ))
                     );
-  //T
+  //T0
   forest[3] = gen_conc(gen_atom("F", 0, false),
                      gen_star(gen_conc(gen_atom("\'.\'", 0, true),
                                      gen_atom("F", 4, false)
                                      ))
                      );
-  //F
+  //F0
   forest[4] = gen_union(gen_atom("\'IDNTER\'", 5, true),
                       gen_union(gen_atom("\'ELTER\'", 5, true),
                                gen_union(gen_conc(gen_conc(gen_atom("\'(\'", 0, true),
@@ -89,6 +93,29 @@ void gen_forest(Tree* forest[])
                                         )
                                )
                       );
+}
+
+Tree* getTreeForId(string id)
+{
+  if (id == "S")
+  {
+    return A[0];
+  } else if (id == "N")
+  {
+    return A[1];
+  } else if (id == "E")
+  {
+    return A[2];
+  } else if (id == "T")
+  {
+    return A[3];
+  } else if (id == "F")
+  {
+    return A[4];
+  } else
+  {
+    return NULL;
+  }
 }
 
 bool is_symbol(string unit)
@@ -129,9 +156,8 @@ Lexical_unit* g0_scan(string filename, int offset)
   string lex_unit;
   int cmp;
 
-  if(file >> unit)//TODO: Replace this by getline
+  if(file >> unit)//TODO: Replace this by getline to manage spaces
   {
-    cout << "\n-->> Read : " << unit << endl;
     cmp = 0;
     lex_unit = "";
     lex_unit += unit.at(cmp);
@@ -141,7 +167,7 @@ Lexical_unit* g0_scan(string filename, int offset)
       {
         return new Lexical_unit(lex_unit, lex_unit, true);
       }
-      return new Lexical_unit(lex_unit, "IDNTER", false);
+      return new Lexical_unit(lex_unit, "\'IDNTER\'", false);
     } else
     {
       if (lex_unit.compare("'") == 0)
@@ -167,12 +193,11 @@ Lexical_unit* g0_scan(string filename, int offset)
           action += unit.at(++cmp);
           while(is_numeric(action))
           {
-            cout << "Action:" << action << endl;
             action += unit.at(++cmp);
           }
           action_num = atoi(action.c_str());
         }
-        return new Lexical_unit(lex_unit, "ELTER", true, action_num);
+        return new Lexical_unit(lex_unit, "\'ELTER\'", true, action_num);
       } else
       {
         string double_unit = lex_unit;
@@ -192,7 +217,6 @@ Lexical_unit* g0_scan(string filename, int offset)
           return new Lexical_unit(lex_unit, lex_unit, true);
         } else
         {
-
           int action_num = 0;
 
           string tmp = "";
@@ -201,6 +225,7 @@ Lexical_unit* g0_scan(string filename, int offset)
           if(unit.size() - cmp > 1)
           {
             tmp2 += unit.at(++cmp);
+
           }
           while(tmp.compare("#") != 0 && tmp.compare("'") != 0 && !is_symbol(tmp) && cmp < unit.size() - 1)
           {
@@ -211,16 +236,16 @@ Lexical_unit* g0_scan(string filename, int offset)
             }
             lex_unit += tmp;
             tmp = "";
-            tmp += unit.at(++cmp);
+            tmp += unit.at(cmp);
             tmp2 = tmp;
             if(unit.size() - cmp > 1)
             {
               tmp2 += unit.at(++cmp);
             }
           }
+          cmp -= 2;
           if (tmp.compare("#") == 0)
           {
-            cmp -= 2;
             //Test if there is an action
             string action;
             action="";
@@ -232,14 +257,14 @@ Lexical_unit* g0_scan(string filename, int offset)
               action += unit.at(++cmp);
               while(is_numeric(action))
               {
-                cout << "Action:" << action << endl;
+                //cout << "Action:" << action << endl;
                 action += unit.at(++cmp);
               }
               action_num = atoi(action.c_str());
             }
           }
           
-          return new Lexical_unit(lex_unit, "IDNTER", false, action_num);
+          return new Lexical_unit(lex_unit, "\'IDNTER\'", false, action_num);
         }
       }
     }
@@ -251,14 +276,14 @@ Lexical_unit* g0_scan(string filename, int offset)
 }
 
 //Appelle le scan, et execute les actions pour construire les arbres de la GPL.
-bool g0_analyse(string filename, Tree* tree, int offset)
+bool g0_analyse(string filename, Tree* tree, int &offset)
 {
   Lexical_unit* scanned = g0_scan(filename, offset);
   Node* root = tree->getRoot();
   bool ana = false;
-
-  //analyse
-  /*if (root->getType() == "Conc") {
+  
+  cout << root->getType() << endl;
+  if (root->getType() == "Conc") {
     ana = g0_analyse(filename, root->getLeft(), offset) && g0_analyse(filename, root->getRight(), offset);
   } else if (root->getType() == "Union") {
       ana = g0_analyse(filename, root->getLeft(), offset) || g0_analyse(filename, root->getLeft(), offset);
@@ -269,24 +294,54 @@ bool g0_analyse(string filename, Tree* tree, int offset)
       ana = true;
       if (g0_analyse(filename, root->getElt(), offset)) {}
   } else if (root->getType() == "Atom") {
-    cout << "end of branch" << endl;
-
-    //TODO: Controler l'atom
-
-    offset += scanned->getUnit().size();
-    if (scanned->getAction() != 0)
+    cout << "ROOT" << endl;
+    cout << "   code: " << root->getCode() << endl;
+    cout << "   terminal? " << (root->getTerminal() ? "OUI" : "NON") << endl;
+    cout << "   action: " << root->getAction() << endl;
+    cout << "SCANNED" << endl;
+    cout << "   chaine: " << scanned->getUnit() << endl;
+    cout << "   code: " << scanned->getCode() << endl;
+    cout << "   terminal? " << (scanned->getTerminal() ? "OUI" : "NON") << endl;
+    cout << "   action: " << scanned->getAction() << endl;
+    if (root->getTerminal())
     {
-      ++offset; //one for the #
-      offset += scanned->getAction()/10 + 1; //n for the number of digits in action
+      if (root->getCode() == scanned->getCode()) {
+        if (root->getAction() != 0) {
+          // int actionType;
+          // stringstream s;
+          // s << this->uniteLexicale["action"];
+          // s >> actionType;
+          // AtomType aType = this->uniteLexicale["code"] == "IDNTER" ? NTER : TER;
+          // G0Action(op, actionType, aType);
+
+          ++offset; //one for the #
+          offset += scanned->getAction()/10 + 1; //n for the number of digits in action
+        }
+        //Rescan
+        offset += scanned->getUnit().size();
+        scanned = g0_scan(filename, offset);
+        ana = true;
+      } else {
+        ana = false;
+      }
+    } else
+    {
+      if (g0_analyse(filename, getTreeForId(root->getCode()), offset))
+      {
+        if (root->getAction() != 0) {
+          // int actionType1;
+          // stringstream s1;
+          // s1 << this->uniteLexicale["action"];
+          // s1 >> actionType1;
+          // AtomType aType = this->uniteLexicale["code"] == "IDNTER" ? NTER : TER;
+          // G0Action(op, actionType1, aType);
+        }
+        ana = true;
+      }
     }
-    cout << "Added: " << scanned->toString() << endl;
-    scanned = g0_scan(filename, offset);
-    //ana = true;
   }
 
-  cout << "#######################################################################################################" << endl;*/
-
-  while (scanned != NULL)
+  /*while (scanned != NULL)
   {
     offset += scanned->getUnit().size();
     if (scanned->getAction() != 0)
@@ -296,14 +351,14 @@ bool g0_analyse(string filename, Tree* tree, int offset)
     }
     cout << "Added: " << scanned->toString() << endl;
     scanned = g0_scan(filename, offset);
-  }
+  }*/
 
   return ana;
 }
 
 int main(void)
 {  
-  Tree* A[50];
+  
   for (int i = 0; i < 50; ++i)
   {
     A[i] = NULL;
@@ -318,7 +373,9 @@ int main(void)
      cout << "\n\n" << endl; 
   }
 
-  if (g0_analyse("gpl.txt", A[0], 0))
+  int offset = 0;
+
+  if (g0_analyse("gpl.txt", A[0], offset))
   {
     cout << ">> Règles de G0 :" << endl;
     for (int i = 5; i < 50 && A[i] != NULL; ++i)

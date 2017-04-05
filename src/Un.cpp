@@ -17,6 +17,10 @@ Tree* Un::getElt(){
 
 bool Un::getTerminal(){return NULL;}
 
+string Un::getCode(){return NULL;}
+
+int Un::getAction(){return NULL;}
+
 string Un::toString(int depth)
 {
 	string branch = "---";

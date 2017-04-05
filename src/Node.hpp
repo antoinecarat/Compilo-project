@@ -22,6 +22,8 @@ class Node
 		virtual Tree* getRight() = 0;
 		virtual Tree* getElt() = 0;
 		virtual bool getTerminal() = 0;
+		virtual string getCode() = 0;
+		virtual int getAction() = 0;
 		virtual string toString(int depth) = 0;
 		virtual string getType() = 0;
 };
