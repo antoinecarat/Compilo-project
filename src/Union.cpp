@@ -17,6 +17,10 @@ Tree* Union::getRight(){
 	return this->right;
 }
 
+Tree* Union::getElt(){return NULL;}
+
+bool Union::getTerminal(){return NULL;}
+
 string Union::toString(int depth)
 {
 	string branchLeft = "---";
@@ -27,4 +31,9 @@ string Union::toString(int depth)
 		branchRight += "---";
 	}
     return "---> Union \n" + branchLeft + this->left->toString(depth + 1) + "\n" + branchRight + this->right->toString(depth + 1);
+}
+
+string Union::getType()
+{
+	return "Union";
 }

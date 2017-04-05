@@ -10,7 +10,8 @@
 
 #include <iostream>
 
-#include "Node.hpp"
+class Node;
+
 using namespace std;
 
 class Tree
@@ -26,4 +27,7 @@ class Tree
     private:
         Node *root;
 };
+
+#include "Node.hpp"
+
 #endif //__TREE_HPP__

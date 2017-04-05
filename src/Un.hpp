@@ -19,9 +19,12 @@ class Un : public Node
 	public :
 		Un(Tree* elt);
 		~Un();
+        Tree* getLeft();
+        Tree* getRight();
 		Tree* getElt();
+		bool getTerminal();
 		string toString(int depth);
-
+		string getType();
 
 	private :
 		Tree* elt;

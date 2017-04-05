@@ -21,8 +21,10 @@ class Conc : public Node
 		~Conc();
 		Tree* getLeft();
 		Tree* getRight();
+		Tree* getElt();
+		bool getTerminal();
 		string toString(int depth);
-
+		string getType();
 	private : 
 		Tree* left;
 		Tree* right;

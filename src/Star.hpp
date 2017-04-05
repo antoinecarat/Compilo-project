@@ -19,8 +19,12 @@ class Star : public Node
 	public :
 		Star(Tree* elt);
 		~Star();
+		Tree* getLeft();
+        Tree* getRight();
 		Tree* getElt();
+		bool getTerminal();
 		string toString(int depth);
+		string getType();
 
 	private :
 		Tree* elt;

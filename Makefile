@@ -1,5 +1,5 @@
 CC := g++ # This is the main compiler
-CFLAGS := -std=c++11 -Wall
+CFLAGS := -std=c++11 -Wall -g
 
 SRCDIR := src
 BUILDDIR := build

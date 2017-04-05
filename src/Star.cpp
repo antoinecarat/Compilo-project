@@ -8,9 +8,14 @@ Star::~Star(){
 
 }
 
+Tree* Star::getLeft(){return NULL;}
+Tree* Star::getRight(){return NULL;}
+
 Tree* Star::getElt(){
 	return this->elt;
 }
+
+bool Star::getTerminal(){return NULL;}
 
 string Star::toString(int depth)
 {
@@ -21,4 +26,10 @@ string Star::toString(int depth)
 	}
 
     return "---> Star \n" + branch + this->elt->toString(depth + 1);
+}
+
+
+string Star::getType()
+{
+	return "Star";
 }

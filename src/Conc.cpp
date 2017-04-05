@@ -1,21 +1,29 @@
 #include "Conc.hpp"
 
-Conc::Conc(Tree* left, Tree* right){
+Conc::Conc(Tree* left, Tree* right)
+{
 	this->left = left;
 	this->right = right;
 }
 
-Conc::~Conc(){
+Conc::~Conc()
+{
 
 }
 
-Tree* Conc::getLeft(){
+Tree* Conc::getLeft()
+{
 	return this->left;
 }
 
-Tree* Conc::getRight(){
+Tree* Conc::getRight()
+{
 	return this->right;
 }
+
+Tree* Conc::getElt(){return NULL;}
+
+bool Conc::getTerminal(){return NULL;}
 
 string Conc::toString(int depth)
 {
@@ -28,4 +36,9 @@ string Conc::toString(int depth)
 	}
 
     return "---> Conc \n" + branchLeft + this->left->toString(depth + 1) + "\n" + branchRight + this->right->toString(depth + 1);
+}
+
+string Conc::getType()
+{
+	return "Conc";
 }

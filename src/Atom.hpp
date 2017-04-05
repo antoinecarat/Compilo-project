@@ -21,6 +21,11 @@ class Atom : public Node
 		int getAction();
 		bool getTerminal();
         string toString(int depth);
+        string getType();
+
+        Tree* getLeft();
+        Tree* getRight();
+        Tree* getElt();
 
 	private:
 		string code;

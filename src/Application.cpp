@@ -192,6 +192,9 @@ Lexical_unit* g0_scan(string filename, int offset)
           return new Lexical_unit(lex_unit, lex_unit, true);
         } else
         {
+
+          int action_num = 0;
+
           string tmp = "";
           tmp += unit.at(++cmp);
           string tmp2 = tmp;
@@ -215,23 +218,27 @@ Lexical_unit* g0_scan(string filename, int offset)
               tmp2 += unit.at(++cmp);
             }
           }
-          //Test if there is an action
-          string action;
-          action="";
-          action += unit.at(++cmp);
-          int action_num = 0;
-
-          if (action.compare("#") == 0)
+          if (tmp.compare("#") == 0)
           {
+            cmp -= 2;
+            //Test if there is an action
+            string action;
             action="";
             action += unit.at(++cmp);
-            while(is_numeric(action))
+
+            if (action.compare("#") == 0)
             {
-              cout << "Action:" << action << endl;
+              action="";
               action += unit.at(++cmp);
+              while(is_numeric(action))
+              {
+                cout << "Action:" << action << endl;
+                action += unit.at(++cmp);
+              }
+              action_num = atoi(action.c_str());
             }
-            action_num = atoi(action.c_str());
           }
+          
           return new Lexical_unit(lex_unit, "IDNTER", false, action_num);
         }
       }
@@ -244,29 +251,63 @@ Lexical_unit* g0_scan(string filename, int offset)
 }
 
 //Appelle le scan, et execute les actions pour construire les arbres de la GPL.
-bool g0_analyse(string filename, Tree* forest[])
+bool g0_analyse(string filename, Tree* tree, int offset)
 {
-  int offset = 0;
   Lexical_unit* scanned = g0_scan(filename, offset);
-  while ( scanned != NULL)
+  Node* root = tree->getRoot();
+  bool ana = false;
+
+  //analyse
+  /*if (root->getType() == "Conc") {
+    ana = g0_analyse(filename, root->getLeft(), offset) && g0_analyse(filename, root->getRight(), offset);
+  } else if (root->getType() == "Union") {
+      ana = g0_analyse(filename, root->getLeft(), offset) || g0_analyse(filename, root->getLeft(), offset);
+  } else if (root->getType() == "Star") {
+      ana = true;
+      while (g0_analyse(filename, root->getElt(), offset)) {}
+  } else if (root->getType() == "Un") {
+      ana = true;
+      if (g0_analyse(filename, root->getElt(), offset)) {}
+  } else if (root->getType() == "Atom") {
+    cout << "end of branch" << endl;
+
+    //TODO: Controler l'atom
+
+    offset += scanned->getUnit().size();
+    if (scanned->getAction() != 0)
+    {
+      ++offset; //one for the #
+      offset += scanned->getAction()/10 + 1; //n for the number of digits in action
+    }
+    cout << "Added: " << scanned->toString() << endl;
+    scanned = g0_scan(filename, offset);
+    //ana = true;
+  }
+
+  cout << "#######################################################################################################" << endl;*/
+
+  while (scanned != NULL)
   {
     offset += scanned->getUnit().size();
     if (scanned->getAction() != 0)
     {
-      offset++;
-      offset += scanned->getAction()/10 + 1;
+      ++offset; //one for the #
+      offset += scanned->getAction()/10 + 1; //n for the number of digits in action
     }
-    cout << "+ " << scanned->toString() << endl;
-    //analyse
+    cout << "Added: " << scanned->toString() << endl;
     scanned = g0_scan(filename, offset);
   }
 
-  return false;
+  return ana;
 }
 
 int main(void)
 {  
   Tree* A[50];
+  for (int i = 0; i < 50; ++i)
+  {
+    A[i] = NULL;
+  }
 
   cout << ">> Règles d'une grammaire :" << endl;
   gen_forest(A);
@@ -277,10 +318,10 @@ int main(void)
      cout << "\n\n" << endl; 
   }
 
-  if (g0_analyse("gpl.txt", A))
+  if (g0_analyse("gpl.txt", A[0], 0))
   {
     cout << ">> Règles de G0 :" << endl;
-    for (int i = 5; i < 50; ++i)
+    for (int i = 5; i < 50 && A[i] != NULL; ++i)
     {
       cout << "A[" << i << "] :" << endl;
       cout << A[i]->toString(0) << endl;
@@ -288,8 +329,7 @@ int main(void)
     }
   } else {
     cout << "Le contenu du fichier n'est pas une grammaire." << endl;
-  }
-  
+  }  
 
 
   return 0;
