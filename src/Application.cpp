@@ -128,6 +128,8 @@ bool is_symbol(string unit)
   symbolsTable.push_back("]");
   symbolsTable.push_back("(|");
   symbolsTable.push_back("|)");
+  symbolsTable.push_back(",");
+  symbolsTable.push_back(";");
 
 
   for (int i = 0; i < symbolsTable.size(); ++i)
@@ -148,15 +150,29 @@ bool is_numeric(string unit)
 //Donne l'unité lexicale suivante
 Lexical_unit* g0_scan(string filename, int offset)
 {
-
+  cout << "Scan with offset : " << offset << endl;
   ifstream file(filename, ios::in);
+
   file.seekg(offset);
+
+  char c;
+  string k = "";
+  file.get(c);
+  k += c;
+  if (k == "\n")
+  {
+  	return new Lexical_unit("eol", "eol", true);
+  } else
+  {
+  	file.seekg(offset);
+  }
 
   string unit;
   string lex_unit;
   int cmp;
 
   if(file >> unit)//TODO: Replace this by getline to manage spaces
+  //if (file.getline(unit, 9999999))
   {
     cmp = 0;
     lex_unit = "";
@@ -165,7 +181,10 @@ Lexical_unit* g0_scan(string filename, int offset)
     {
       if(is_symbol(lex_unit))
       {
-        return new Lexical_unit(lex_unit, lex_unit, true);
+      	string code = "\'";
+       	code += lex_unit;
+       	code += "\'";
+        return new Lexical_unit(lex_unit, code, true);
       }
       return new Lexical_unit(lex_unit, "\'IDNTER\'", false);
     } else
@@ -204,17 +223,23 @@ Lexical_unit* g0_scan(string filename, int offset)
         if(unit.size() - cmp > 1)
         {
           double_unit += unit.at(++cmp);
-          if (is_symbol(double_unit))
+          if (is_symbol(double_unit))//
           {
-            return new Lexical_unit(double_unit, double_unit, true);
+          	string code = "\'";
+          	code += double_unit;
+          	code += "\'";
+            return new Lexical_unit(double_unit, code, true);
           } else
           {
             --cmp;
           }
         }
-        if (is_symbol(lex_unit))
+        if (is_symbol(lex_unit))//
         {
-          return new Lexical_unit(lex_unit, lex_unit, true);
+          string code = "\'";
+          code += lex_unit;
+          code += "\'";
+          return new Lexical_unit(lex_unit, code, true);
         } else
         {
           int action_num = 0;
@@ -279,30 +304,59 @@ Lexical_unit* g0_scan(string filename, int offset)
 bool g0_analyse(string filename, Tree* tree, int &offset)
 {
   Lexical_unit* scanned = g0_scan(filename, offset);
+  if (scanned->getUnit() == "eol")
+  {
+	++offset;
+   	scanned = g0_scan(filename, offset);
+  }
   Node* root = tree->getRoot();
   bool ana = false;
   
-  cout << root->getType() << endl;
+
+  cout << "----- Analyse de : " << root->getType() << endl;
   if (root->getType() == "Conc") {
-    ana = g0_analyse(filename, root->getLeft(), offset) && g0_analyse(filename, root->getRight(), offset);
+   	if (g0_analyse(filename, root->getLeft(), offset))
+   	{
+   		cout << "                  Conc à droite" << endl;
+   		bool caca = g0_analyse(filename, root->getRight(), offset);
+   		cout << "                ------ Sortie de Conc (" << (caca ? "true" : "false") << ")" << endl;
+   		return caca;
+   	} else
+   	{
+        cout << "                ------ Sortie de Conc (false) ------" << endl;
+   		return false;
+   	}
   } else if (root->getType() == "Union") {
-      ana = g0_analyse(filename, root->getLeft(), offset) || g0_analyse(filename, root->getLeft(), offset);
+    if (g0_analyse(filename, root->getLeft(), offset))
+    {
+        cout << "                ------ Sortie de Union (true) ------" << endl;
+    	return true;
+    } else
+    {
+    	cout << "                  Union à droite" << endl;
+   		return g0_analyse(filename, root->getRight(), offset);
+    }
   } else if (root->getType() == "Star") {
-      ana = true;
-      while (g0_analyse(filename, root->getElt(), offset)) {}
+  		cout << "                                            Un while sauvage apparait et m'aspire." << endl;
+    	while (g0_analyse(filename, root->getElt(), offset)) {
+    		cout << "                                            Je suis dans le while, aidez moi." << endl;
+    	}
+   		cout << "                ------ Sortie de Star (true) ------" << endl;
+    	return true;
   } else if (root->getType() == "Un") {
-      ana = true;
-      if (g0_analyse(filename, root->getElt(), offset)) {}
+    	if (g0_analyse(filename, root->getElt(), offset)) {}
+   		cout << "                ------ Sortie de Un (true) ------" << endl;
+    	return true;
   } else if (root->getType() == "Atom") {
-    cout << "ROOT" << endl;
-    cout << "   code: " << root->getCode() << endl;
-    cout << "   terminal? " << (root->getTerminal() ? "OUI" : "NON") << endl;
-    cout << "   action: " << root->getAction() << endl;
-    cout << "SCANNED" << endl;
-    cout << "   chaine: " << scanned->getUnit() << endl;
-    cout << "   code: " << scanned->getCode() << endl;
-    cout << "   terminal? " << (scanned->getTerminal() ? "OUI" : "NON") << endl;
-    cout << "   action: " << scanned->getAction() << endl;
+    cout << "----- ROOT : " << root->getCode() << endl;
+    //cout << "   code: " << root->getCode() << endl;
+    //cout << "   terminal? " << (root->getTerminal() ? "OUI" : "NON") << endl;
+    //cout << "   action: " << root->getAction() << endl;
+    cout << "----- SCANNED : " << scanned->getUnit() << " ; " << scanned->getCode() << endl;
+    //cout << "   chaine: " << scanned->getUnit() << endl;
+    //cout << "   code: " << scanned->getCode() << endl;
+    //cout << "   terminal? " << (scanned->getTerminal() ? "OUI" : "NON") << endl;
+    //cout << "   action: " << scanned->getAction() << endl;
     if (root->getTerminal())
     {
       if (root->getCode() == scanned->getCode()) {
@@ -313,16 +367,22 @@ bool g0_analyse(string filename, Tree* tree, int &offset)
           // s >> actionType;
           // AtomType aType = this->uniteLexicale["code"] == "IDNTER" ? NTER : TER;
           // G0Action(op, actionType, aType);
-
-          ++offset; //one for the #
-          offset += scanned->getAction()/10 + 1; //n for the number of digits in action
         }
         //Rescan
+        cout << "Rescan !" << endl;
         offset += scanned->getUnit().size();
+		    if (scanned->getAction() != 0)
+		    {
+		      ++offset; //one for the #
+		      offset += scanned->getAction()/10 + 1; //n for the number of digits in action
+		    }
+		    cout << "Added: " << scanned->toString() << endl;
         scanned = g0_scan(filename, offset);
-        ana = true;
+        cout << "                ------ Sortie de Atom TERM (true) ------" << endl;
+        return true;
       } else {
-        ana = false;
+        cout << "                ------ Sortie de Atom TERM (false) ------" << endl;
+        return false;
       }
     } else
     {
@@ -336,20 +396,28 @@ bool g0_analyse(string filename, Tree* tree, int &offset)
           // AtomType aType = this->uniteLexicale["code"] == "IDNTER" ? NTER : TER;
           // G0Action(op, actionType1, aType);
         }
-        ana = true;
+        cout << "                ------ Sortie de Atom NTERM (true) -----" << endl;
+        return true;
       }
     }
+    cout << "                ------ Sortie ------" << endl;
   }
 
   /*while (scanned != NULL)
   {
-    offset += scanned->getUnit().size();
-    if (scanned->getAction() != 0)
-    {
-      ++offset; //one for the #
-      offset += scanned->getAction()/10 + 1; //n for the number of digits in action
-    }
-    cout << "Added: " << scanned->toString() << endl;
+  	if (scanned->getUnit() == "eol")
+  	{
+  		++offset;
+  	} else
+  	{
+	    offset += scanned->getUnit().size();
+	    if (scanned->getAction() != 0)
+	    {
+	      ++offset; //one for the #
+	      offset += scanned->getAction()/10 + 1; //n for the number of digits in action
+	    }
+	    cout << "Added: " << scanned->toString() << endl;
+	}
     scanned = g0_scan(filename, offset);
   }*/
 
