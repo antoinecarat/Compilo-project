@@ -20,6 +20,7 @@ using namespace std;
 
 Tree* A[50];
 map<string, int> binding;
+stack<Tree*> g0_stack;
 
 
 Tree* gen_conc(Tree* left, Tree* right)
@@ -111,6 +112,16 @@ Tree* getTreeForId(string id)
   return A[binding[id]];
 }
 
+int getLastIndex()
+{
+	int i = 0;
+	while (i<50 && A[i] != NULL)
+	{
+		++i;
+	}
+	return i;
+}
+
 bool is_symbol(string unit)
 {
   vector<string> symbolsTable;
@@ -143,7 +154,7 @@ bool is_numeric(string unit)
 //Donne l'unité lexicale suivante
 Lexical_unit* g0_scan(string filename, int offset)
 {
-  cout << "Scan with offset : " << offset << endl;
+  //cout << "Scan with offset : " << offset << endl;
   ifstream file(filename, ios::in);
 
   file.seekg(offset);
@@ -293,33 +304,86 @@ Lexical_unit* g0_scan(string filename, int offset)
   return NULL;
 }
 
-void g0_action()
+void g0_action(Node* root, Lexical_unit* scanned)
 {
-        // Action 1 : créer arbre
-        /*if (!this->s.empty()) {
-            t1 = this->s.top();
-            this->s.pop();
-            if (!this->s.empty())
-            {
-                t2 = this->s.top();
-            	this->s.pop();
-            	this->foret[t2->getCode()] = t1;
-            //std::cout << "MON CODE DE MON ARBRE : " << t2->getCode() << endl << "MA SUPER FORET DE " << t2->getCode() << endl << this->foret[t2->getCode()]->toString(0) << '\n';
-        	}
-        }*/
-        // Action 2 : Créer Terminal
-        
-        // Action 3 : Créer union
-        
-        // Action 4 : Créer Conc
-        
-        // Action 5 : Créer terminal / Non terminal
-        
-        // Action 6 : Créer star
-        
-        // Action 7 : Créer Un
-        
-        // Default en cas d'erreur
+	Tree* t1;
+	Tree* t2;
+	if (root->getAction() == 1) // Action 1 : créer arbre
+	{
+		//cout << "Action 1 !" << endl;
+	    if (!g0_stack.empty()) {
+	        t1 = g0_stack.top();
+	        //cout << "ARBRE : " << g0_stack.top()->toString(0) << endl;
+	        g0_stack.pop();
+	        if (!g0_stack.empty())
+	        {
+	            t2 = g0_stack.top();
+	        	//cout << "NT : " << g0_stack.top()->getRoot()->getCode() << endl;
+	        	g0_stack.pop();
+
+	        	//foret[t2->getCode()] = t1;//FIXME
+				binding.insert ( std::pair<string,int>(t2->getRoot()->getCode(), getLastIndex()));
+				A[getLastIndex()] = t1;
+	        }
+	        //cout << "empty stack" << endl;
+	    }
+	} else if (root->getAction() == 2) // Action 2 : Créer Terminal
+	{
+		//cout << "Action 2 !" << endl;
+        g0_stack.push(gen_atom (scanned->getUnit(), scanned->getAction(), scanned->getTerminal()));
+	} else if (root->getAction() == 3) // Action 3 : Créer union
+    {
+		//cout << "Action 3 !" << endl;
+		if (!g0_stack.empty()) {
+            t1 = g0_stack.top();
+            g0_stack.pop();
+            if (!g0_stack.empty()) {
+                t2 = g0_stack.top();
+                g0_stack.pop();
+                g0_stack.push(gen_union(t1, t2));
+            }
+        }
+        //cout << "empty stack" << endl;
+    } else if (root->getAction() == 4) // Action 4 : Créer Conc
+    {
+		//cout << "Action 4 !" << endl;
+		if (!g0_stack.empty()) {
+            t1 = g0_stack.top();
+            g0_stack.pop();
+            if (!g0_stack.empty()) {
+                t2 = g0_stack.top();
+                g0_stack.pop();
+                g0_stack.push(gen_conc(t1, t2));
+            }
+        }
+        //cout << "empty stack" << endl;
+    } else if (root->getAction() == 5) // Action 5 : Créer terminal / Non terminal
+    {
+		//cout << "Action 5 !" << endl;
+		g0_stack.push(gen_atom (scanned->getUnit(), scanned->getAction(), scanned->getTerminal()));
+    } else if (root->getAction() == 6) // Action 6 : Créer star
+    {
+		//cout << "Action 6 !" << endl;
+		if (!g0_stack.empty()) {
+            t1 = g0_stack.top();
+            g0_stack.pop();
+            g0_stack.push(gen_star(t1));
+        }
+        //cout << "empty stack" << endl;
+    } else if (root->getAction() == 7) // Action 7 : Créer Un
+    {
+		//cout << "Action 7 !" << endl;
+		if (!g0_stack.empty()) {
+            t1 = g0_stack.top();
+            g0_stack.pop();
+            g0_stack.push(gen_un(t1));
+        }
+        //cout << "empty stack" << endl;
+    }
+
+    // cout << "Post-traitement : " << endl;
+    // cout << g0_stack.top()->toString(0) << endl;
+
 }
 
 //Appelle le scan, et execute les actions pour construire les arbres de la GPL.
@@ -335,75 +399,58 @@ bool g0_analyse(string filename, Tree* tree, int &offset)
   bool ana = false;
   
 
-  cout << "----- Analyse de : " << root->getType() << endl;
+  //cout << "----- Analyse de : " << root->getType() << endl;
   if (root->getType() == "Conc") {
    	if (g0_analyse(filename, root->getLeft(), offset))
    	{
-   		cout << "                  Conc à droite" << endl;
-   		bool caca = g0_analyse(filename, root->getRight(), offset);
-   		cout << "                ------ Sortie de Conc (" << (caca ? "true" : "false") << ")" << endl;
-   		return caca;
+   		return g0_analyse(filename, root->getRight(), offset);
    	} else
    	{
-        cout << "                ------ Sortie de Conc (false) ------" << endl;
-   		return false;
+        return false;
    	}
   } else if (root->getType() == "Union") {
     if (g0_analyse(filename, root->getLeft(), offset))
     {
-        cout << "                ------ Sortie de Union (true) ------" << endl;
-    	return true;
+        return true;
     } else
     {
-    	cout << "                  Union à droite" << endl;
-   		return g0_analyse(filename, root->getRight(), offset);
+    	return g0_analyse(filename, root->getRight(), offset);
     }
   } else if (root->getType() == "Star") {
-  		cout << "                                            Un while sauvage apparait et m'aspire." << endl;
-    	while (g0_analyse(filename, root->getElt(), offset)) {
-    		cout << "                                            Je suis dans le while, aidez moi." << endl;
-    	}
-   		cout << "                ------ Sortie de Star (true) ------" << endl;
-    	return true;
+  		while (g0_analyse(filename, root->getElt(), offset)) {}
+   		return true;
   } else if (root->getType() == "Un") {
     	if (g0_analyse(filename, root->getElt(), offset)) {}
-   		cout << "                ------ Sortie de Un (true) ------" << endl;
-    	return true;
+   		return true;
   } else if (root->getType() == "Atom") {
-    cout << "----- ROOT : " << root->getCode() << endl;
-    //cout << "   code: " << root->getCode() << endl;
+    //cout << "----- ROOT : " << root->getCode() << endl;
     //cout << "   terminal? " << (root->getTerminal() ? "OUI" : "NON") << endl;
     //cout << "   action: " << root->getAction() << endl;
-    cout << "----- SCANNED : " << scanned->getUnit() << " ; " << scanned->getCode() << endl;
+    //cout << "----- SCANNED : " << scanned->getUnit() << " ; " << scanned->getCode() << endl;
     //cout << "   chaine: " << scanned->getUnit() << endl;
     //cout << "   code: " << scanned->getCode() << endl;
     //cout << "   terminal? " << (scanned->getTerminal() ? "OUI" : "NON") << endl;
     //cout << "   action: " << scanned->getAction() << endl;
     if (root->getTerminal())
     {
+      //cout << (root->getCode() == scanned->getCode()) << endl;
       if (root->getCode() == scanned->getCode()) {
         if (root->getAction() != 0) {
-          // int actionType;
-          // stringstream s;
-          // s << this->uniteLexicale["action"];
-          // s >> actionType;
-          // AtomType aType = this->uniteLexicale["code"] == "IDNTER" ? NTER : TER;
-          // G0Action(op, actionType, aType);
+        	//cout << "Calling Action n " << root->getAction() << endl;
+          g0_action(root, scanned);
         }
         //Rescan
-        cout << "Rescan !" << endl;
+        //cout << "Rescan !" << endl;
         offset += scanned->getUnit().size();
-		    if (scanned->getAction() != 0)
-		    {
-		      ++offset; //one for the #
-		      offset += scanned->getAction()/10 + 1; //n for the number of digits in action
-		    }
-		    cout << "Added: " << scanned->toString() << endl;
+	    if (scanned->getAction() != 0)
+	    {
+	      ++offset; //one for the #
+	      offset += scanned->getAction()/10 + 1; //n for the number of digits in action
+	    }
         scanned = g0_scan(filename, offset);
-        cout << "                ------ Sortie de Atom TERM (true) ------" << endl;
+        //cout << "-------------------->>>>>>>>>>>>>>>>>>" << endl;
         return true;
       } else {
-        cout << "                ------ Sortie de Atom TERM (false) ------" << endl;
         return false;
       }
     } else
@@ -411,18 +458,11 @@ bool g0_analyse(string filename, Tree* tree, int &offset)
       if (g0_analyse(filename, getTreeForId(root->getCode()), offset))
       {
         if (root->getAction() != 0) {
-          // int actionType1;
-          // stringstream s1;
-          // s1 << this->uniteLexicale["action"];
-          // s1 >> actionType1;
-          // AtomType aType = this->uniteLexicale["code"] == "IDNTER" ? NTER : TER;
-          // G0Action(op, actionType1, aType);
+          g0_action(root, scanned);
         }
-        cout << "                ------ Sortie de Atom NTERM (true) -----" << endl;
         return true;
       }
     }
-    cout << "                ------ Sortie ------" << endl;
   }
 
   /*while (scanned != NULL)
@@ -468,7 +508,7 @@ int main(void)
   if (g0_analyse("gpl.txt", A[0], offset))
   {
     cout << ">> Règles de G0 :" << endl;
-    for (int i = 5; i < 50 && A[i] != NULL; ++i)
+    for (int i = 5; i < getLastIndex(); ++i)
     {
       cout << "A[" << i << "] :" << endl;
       cout << A[i]->toString(0) << endl;
