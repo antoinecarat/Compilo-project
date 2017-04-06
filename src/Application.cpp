@@ -11,13 +11,15 @@
 #include <cstdlib>
 #include <fstream>
 #include <string>
-//#include <regex>
+#include <stack>
+#include <map>
 #include <vector>
 
 using namespace std;
 
 
 Tree* A[50];
+map<string, int> binding;
 
 
 Tree* gen_conc(Tree* left, Tree* right)
@@ -47,7 +49,7 @@ Tree* gen_atom(std::string code, int action, bool terminal)
 
 void gen_forest(Tree* forest[])
 {
-  //S0
+  //S
   forest[0] = gen_conc(gen_star(gen_conc(gen_conc(gen_conc(gen_atom("N", 0, false),
                                                      gen_atom("\'->\'", 0, true)
                                                      ),
@@ -57,21 +59,29 @@ void gen_forest(Tree* forest[])
                                      )),
                       gen_atom("\';\'", 0, true)
                       );
-  //N0
+  binding.insert ( std::pair<string,int>("S", 0));
+
+  //N
   forest[1] = gen_atom("\'IDNTER\'", 2, true);
-  //E0
+  binding.insert ( std::pair<string,int>("N", 1));
+
+  //E
   forest[2] = gen_conc(gen_atom("T", 0, false),
                      gen_star(gen_conc(gen_atom("\'+\'", 0, true),
                                      gen_atom("T", 3, false)
                                     ))
                     );
-  //T0
+  binding.insert ( std::pair<string,int>("E", 2));
+
+  //T
   forest[3] = gen_conc(gen_atom("F", 0, false),
                      gen_star(gen_conc(gen_atom("\'.\'", 0, true),
                                      gen_atom("F", 4, false)
                                      ))
                      );
-  //F0
+  binding.insert ( std::pair<string,int>("T", 3));
+
+  //F
   forest[4] = gen_union(gen_atom("\'IDNTER\'", 5, true),
                       gen_union(gen_atom("\'ELTER\'", 5, true),
                                gen_union(gen_conc(gen_conc(gen_atom("\'(\'", 0, true),
@@ -93,29 +103,12 @@ void gen_forest(Tree* forest[])
                                         )
                                )
                       );
+  binding.insert ( std::pair<string,int>("F", 4));
 }
 
 Tree* getTreeForId(string id)
 {
-  if (id == "S")
-  {
-    return A[0];
-  } else if (id == "N")
-  {
-    return A[1];
-  } else if (id == "E")
-  {
-    return A[2];
-  } else if (id == "T")
-  {
-    return A[3];
-  } else if (id == "F")
-  {
-    return A[4];
-  } else
-  {
-    return NULL;
-  }
+  return A[binding[id]];
 }
 
 bool is_symbol(string unit)
@@ -298,6 +291,35 @@ Lexical_unit* g0_scan(string filename, int offset)
   file.close();
 
   return NULL;
+}
+
+void g0_action()
+{
+        // Action 1 : créer arbre
+        /*if (!this->s.empty()) {
+            t1 = this->s.top();
+            this->s.pop();
+            if (!this->s.empty())
+            {
+                t2 = this->s.top();
+            	this->s.pop();
+            	this->foret[t2->getCode()] = t1;
+            //std::cout << "MON CODE DE MON ARBRE : " << t2->getCode() << endl << "MA SUPER FORET DE " << t2->getCode() << endl << this->foret[t2->getCode()]->toString(0) << '\n';
+        	}
+        }*/
+        // Action 2 : Créer Terminal
+        
+        // Action 3 : Créer union
+        
+        // Action 4 : Créer Conc
+        
+        // Action 5 : Créer terminal / Non terminal
+        
+        // Action 6 : Créer star
+        
+        // Action 7 : Créer Un
+        
+        // Default en cas d'erreur
 }
 
 //Appelle le scan, et execute les actions pour construire les arbres de la GPL.
